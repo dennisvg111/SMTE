@@ -177,6 +177,8 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(Homepage.this, Settings.class);
+            startActivity(intent);
             return true;
         }
 

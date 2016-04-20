@@ -4,4 +4,5 @@
     <string name="action_refresh">Refresh</string>
     <string name="action_add_current_url">Add current site to list</string>
     <string name="title_activity_view_site">Browse</string>
+    <string name="title_activity_settings">Settings</string>
 </resources>
