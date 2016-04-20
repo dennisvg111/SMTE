@@ -52,14 +52,14 @@ public abstract class MyUtility {
         String favoriteList = getStringFromPreferences(activity,null,"favorites");
         return convertStringToArray(favoriteList);
     }
-    private static boolean putStringInPreferences(Activity activity,String nick,String key){
+    public static boolean putStringInPreferences(Activity activity,String nick,String key){
         SharedPreferences sharedPreferences = activity.getPreferences(Activity.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(key, nick);
         editor.commit();
         return true;
     }
-    private static String getStringFromPreferences(Activity activity,String defaultValue,String key){
+    public static String getStringFromPreferences(Activity activity,String defaultValue,String key){
         SharedPreferences sharedPreferences = activity.getPreferences(Activity.MODE_PRIVATE);
         String temp = sharedPreferences.getString(key, defaultValue);
         return temp;
