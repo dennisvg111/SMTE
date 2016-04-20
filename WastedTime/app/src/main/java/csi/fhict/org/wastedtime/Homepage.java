@@ -1,9 +1,11 @@
 package csi.fhict.org.wastedtime;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
@@ -26,6 +28,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import static java.lang.Character.getType;
@@ -103,17 +107,44 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
         }
         if (v instanceof  TextView) {
             final TextView tv = (TextView) v;
+            tv.setPadding(0,0,0,10);
             if (URLlist == null)
             {
                 URLlist = new ArrayList<TextView>();
             }
             if (!URLlist.contains(tv)) {
                 URLlist.add(tv);
+                tv.setLongClickable(true);
                 tv.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
                         Intent intent = new Intent(Homepage.this, viewSite.class);
                         intent.putExtra("URL", tv.getText());
                         startActivity(intent);
+                    }
+                });
+                tv.setOnLongClickListener(new View.OnLongClickListener() {
+                    public boolean onLongClick(View view) {
+                        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which){
+                                    case DialogInterface.BUTTON_POSITIVE:
+                                        //Yes button clicked
+                                        if (MyUtility.removeFavoriteItem(self, ""+tv.getText()))
+                                        {
+                                            ((ViewGroup)tv.getParent()).removeView(tv);
+                                        }
+                                        break;
+
+                                    case DialogInterface.BUTTON_NEGATIVE:
+                                        //No button clicked
+                                        break;
+                                }
+                            }
+                        };
+                        AlertDialog.Builder builder = new AlertDialog.Builder(self);
+                        builder.setMessage("Delete this URL?").setPositiveButton("Yes", dialogClickListener).setNegativeButton("No", dialogClickListener).show();
+                        return true;
                     }
                 });
             }
@@ -195,13 +226,39 @@ abstract class MyUtility {
         //Get previous favorite items
         String favoriteList = getStringFromPreferences(activity,null,"favorites");
         // Append new Favorite item
-        if(favoriteList!=null){
+        if(favoriteList!=null && favoriteList != ""){
             favoriteList = favoriteList+","+favoriteItem;
         }else{
             favoriteList = favoriteItem;
         }
         // Save in Shared Preferences
         return putStringInPreferences(activity,favoriteList,"favorites");
+    }
+    public static boolean removeFavoriteItem(Activity activity,String favoriteItem){
+        //Get previous favorite items
+        String favoriteList = getStringFromPreferences(activity,null,"favorites");
+        // Append new Favorite item
+        if(favoriteList!=null){
+            String[] favoriteArray = convertStringToArray(favoriteList);
+            if (favoriteArray.length > 0)
+            {
+                List<String> list = new ArrayList<String>(Arrays.asList(favoriteArray));
+                list.remove(favoriteItem);
+                boolean first = false;
+                favoriteList = "";
+                for (String item : list)
+                {
+                    if (!first)
+                    {
+                        favoriteList += ",";
+                    }
+                    favoriteList += item;
+                }
+                // Save in Shared Preferences
+                return putStringInPreferences(activity, favoriteList,"favorites");
+            }
+        }
+        return false;
     }
     public static String[] getFavoriteList(Activity activity){
         String favoriteList = getStringFromPreferences(activity,null,"favorites");
