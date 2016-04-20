@@ -1,6 +1,10 @@
 package csi.fhict.org.wastedtime;
 
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,7 +19,10 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class Homepage extends AppCompatActivity {
+public class Homepage extends AppCompatActivity implements SensorEventListener {
+
+    private SensorManager sensorManager;
+    private float oldAX = 9001, oldAY = 9001, oldAZ = 9001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +42,9 @@ public class Homepage extends AppCompatActivity {
 
         LinearLayout sv = (LinearLayout) findViewById(R.id.mainScrollView);
         makeChildrenTextViewsClickable(sv);
+
+        sensorManager=(SensorManager) getSystemService(SENSOR_SERVICE);
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     public void makeChildrenTextViewsClickable(View v)
@@ -80,5 +90,41 @@ public class Homepage extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType()==Sensor.TYPE_ACCELEROMETER){
+            float ax = event.values[0];
+            float ay = event.values[1];
+            float az = event.values[2];
+            if (oldAX == 9001)
+            {
+                oldAX = ax;
+            }
+            if (oldAY == 9001)
+            {
+                oldAY = ay;
+            }
+            if (oldAZ == 9001)
+            {
+                oldAZ = az;
+            }
+            float dx = Math.abs(Math.abs(ax) - Math.abs(oldAX));
+            float dy = Math.abs(Math.abs(ay) - Math.abs(oldAY));
+            float dz = Math.abs(Math.abs(az) - Math.abs(oldAZ));
+            float maxD = Math.max(Math.max(dx, dy), dz);
+            oldAX = ax;
+            oldAY = ay;
+            oldAZ = az;
+            if (maxD > 2.5) {
+                Log.d("values", "Max: " + maxD);
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }
