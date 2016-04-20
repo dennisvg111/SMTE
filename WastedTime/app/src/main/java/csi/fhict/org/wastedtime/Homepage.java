@@ -40,12 +40,13 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
     private float oldAX = 9001, oldAY = 9001, oldAZ = 9001;
     private ArrayList<TextView> URLlist;
     private long lastShuffle = 0;
-    private Activity self = this;
+    private static Activity self;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
+        self = this;
         URLlist = new ArrayList<TextView>();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -83,6 +84,11 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
 
         sensorManager=(SensorManager) getSystemService(SENSOR_SERVICE);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    public static Activity getSelf()
+    {
+        return self;
     }
 
     public void addURL(String url) {
@@ -136,6 +142,7 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
                                         if (MyUtility.removeFavoriteItem(self, ""+tv.getText()))
                                         {
                                             ((ViewGroup)tv.getParent().getParent()).removeView((View) tv.getParent());
+                                            URLlist.remove(tv);
                                         }
                                         break;
 
@@ -153,7 +160,6 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
             }
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -223,69 +229,3 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
     }
 }
 
-abstract class MyUtility {
-
-    public static boolean addFavoriteItem(Activity activity,String favoriteItem){
-        //Get previous favorite items
-        String favoriteList = getStringFromPreferences(activity,null,"favorites");
-        // Append new Favorite item
-        if(favoriteList!=null && favoriteList != ""){
-            favoriteList = favoriteList+","+favoriteItem;
-        }else{
-            favoriteList = favoriteItem;
-        }
-        // Save in Shared Preferences
-        return putStringInPreferences(activity,favoriteList,"favorites");
-    }
-    public static boolean removeFavoriteItem(Activity activity,String favoriteItem){
-        //Get previous favorite items
-        String favoriteList = getStringFromPreferences(activity,null,"favorites");
-        // Append new Favorite item
-        if(favoriteList!=null){
-            String[] favoriteArray = convertStringToArray(favoriteList);
-            if (favoriteArray.length > 0)
-            {
-                List<String> list = new ArrayList<String>(Arrays.asList(favoriteArray));
-                list.remove(favoriteItem);
-                boolean first = true;
-                favoriteList = "";
-                for (String item : list)
-                {
-                    if (!first)
-                    {
-                        favoriteList += ",";
-                    }
-                    favoriteList += item;
-                    first = false;
-                }
-                // Save in Shared Preferences
-                return putStringInPreferences(activity, favoriteList,"favorites");
-            }
-        }
-        return false;
-    }
-    public static String[] getFavoriteList(Activity activity){
-        String favoriteList = getStringFromPreferences(activity,null,"favorites");
-        return convertStringToArray(favoriteList);
-    }
-    private static boolean putStringInPreferences(Activity activity,String nick,String key){
-        SharedPreferences sharedPreferences = activity.getPreferences(Activity.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(key, nick);
-        editor.commit();
-        return true;
-    }
-    private static String getStringFromPreferences(Activity activity,String defaultValue,String key){
-        SharedPreferences sharedPreferences = activity.getPreferences(Activity.MODE_PRIVATE);
-        String temp = sharedPreferences.getString(key, defaultValue);
-        return temp;
-    }
-
-    private static String[] convertStringToArray(String str) {
-        if (str == null || str == "") {
-            return new String[0];
-        }
-        String[] arr = str.split(",");
-        return arr;
-    }
-}
