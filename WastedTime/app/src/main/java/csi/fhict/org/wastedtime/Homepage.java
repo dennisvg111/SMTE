@@ -1,9 +1,11 @@
 package csi.fhict.org.wastedtime;
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -34,6 +36,7 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
     private float oldAX = 9001, oldAY = 9001, oldAZ = 9001;
     private ArrayList<TextView> URLlist;
     private long lastShuffle = 0;
+    private Activity self = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,9 +59,10 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
 
                     // Tries to get the item's contents as a URI
                     String pasteUri = "" + item.getText();
-                    if (pasteUri != null)
-                    {
+                    if (pasteUri != null) {
                         Log.d("values", pasteUri);
+                        addURL(pasteUri);
+                        MyUtility.addFavoriteItem(self, pasteUri);
                     }
                 }
             }
@@ -67,8 +71,25 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
         LinearLayout sv = (LinearLayout) findViewById(R.id.mainScrollView);
         makeChildrenTextViewsClickable(sv);
 
+        String[] sites = MyUtility.getFavoriteList(this);
+        for (String url : sites)
+        {
+            addURL(url);
+        }
+
         sensorManager=(SensorManager) getSystemService(SENSOR_SERVICE);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    public void addURL(String url) {
+        LinearLayout sv = (LinearLayout) findViewById(R.id.mainScrollView);
+        LinearLayout child = new LinearLayout(this);
+        child.setOrientation(LinearLayout.HORIZONTAL);
+        TextView grandChild1 = new TextView(this);
+        grandChild1.setText(url);
+        child.addView(grandChild1);
+        sv.addView(child);
+        makeChildrenTextViewsClickable(sv);
     }
 
     public void makeChildrenTextViewsClickable(View v)
@@ -80,17 +101,22 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
                 makeChildrenTextViewsClickable(((ViewGroup) v).getChildAt(i));
             }
         }
-        if (v instanceof  TextView)
-        {
+        if (v instanceof  TextView) {
             final TextView tv = (TextView) v;
-            URLlist.add(tv);
-            tv.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View view) {
-                    Intent intent = new Intent(Homepage.this, viewSite.class);
-                    intent.putExtra("URL", tv.getText());
-                    startActivity(intent);
-                }
-            });
+            if (URLlist == null)
+            {
+                URLlist = new ArrayList<TextView>();
+            }
+            if (!URLlist.contains(tv)) {
+                URLlist.add(tv);
+                tv.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View view) {
+                        Intent intent = new Intent(Homepage.this, viewSite.class);
+                        intent.putExtra("URL", tv.getText());
+                        startActivity(intent);
+                    }
+                });
+            }
         }
     }
 
@@ -160,5 +186,45 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
+    }
+}
+
+abstract class MyUtility {
+
+    public static boolean addFavoriteItem(Activity activity,String favoriteItem){
+        //Get previous favorite items
+        String favoriteList = getStringFromPreferences(activity,null,"favorites");
+        // Append new Favorite item
+        if(favoriteList!=null){
+            favoriteList = favoriteList+","+favoriteItem;
+        }else{
+            favoriteList = favoriteItem;
+        }
+        // Save in Shared Preferences
+        return putStringInPreferences(activity,favoriteList,"favorites");
+    }
+    public static String[] getFavoriteList(Activity activity){
+        String favoriteList = getStringFromPreferences(activity,null,"favorites");
+        return convertStringToArray(favoriteList);
+    }
+    private static boolean putStringInPreferences(Activity activity,String nick,String key){
+        SharedPreferences sharedPreferences = activity.getPreferences(Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(key, nick);
+        editor.commit();
+        return true;
+    }
+    private static String getStringFromPreferences(Activity activity,String defaultValue,String key){
+        SharedPreferences sharedPreferences = activity.getPreferences(Activity.MODE_PRIVATE);
+        String temp = sharedPreferences.getString(key, defaultValue);
+        return temp;
+    }
+
+    private static String[] convertStringToArray(String str) {
+        if (str == null || str == "") {
+            return new String[0];
+        }
+        String[] arr = str.split(",");
+        return arr;
     }
 }
