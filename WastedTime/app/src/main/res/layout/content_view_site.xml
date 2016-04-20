@@ -12,4 +12,10 @@
     tools:context="csi.fhict.org.wastedtime.viewSite"
     tools:showIn="@layout/activity_view_site">
 
+    <WebView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/webView"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>
