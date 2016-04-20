@@ -107,7 +107,10 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
         }
         if (v instanceof  TextView) {
             final TextView tv = (TextView) v;
-            tv.setPadding(0,0,0,10);
+            tv.setPadding(0,5,0,5);
+            tv.setLayoutParams
+                    (new LinearLayout.LayoutParams
+                            (ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             if (URLlist == null)
             {
                 URLlist = new ArrayList<TextView>();
@@ -132,7 +135,7 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
                                         //Yes button clicked
                                         if (MyUtility.removeFavoriteItem(self, ""+tv.getText()))
                                         {
-                                            ((ViewGroup)tv.getParent()).removeView(tv);
+                                            ((ViewGroup)tv.getParent().getParent()).removeView((View) tv.getParent());
                                         }
                                         break;
 
@@ -244,7 +247,7 @@ abstract class MyUtility {
             {
                 List<String> list = new ArrayList<String>(Arrays.asList(favoriteArray));
                 list.remove(favoriteItem);
-                boolean first = false;
+                boolean first = true;
                 favoriteList = "";
                 for (String item : list)
                 {
@@ -253,6 +256,7 @@ abstract class MyUtility {
                         favoriteList += ",";
                     }
                     favoriteList += item;
+                    first = false;
                 }
                 // Save in Shared Preferences
                 return putStringInPreferences(activity, favoriteList,"favorites");
