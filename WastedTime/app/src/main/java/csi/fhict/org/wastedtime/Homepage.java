@@ -6,9 +6,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class Homepage extends AppCompatActivity {
@@ -28,15 +32,33 @@ public class Homepage extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-        final TextView tv = (TextView) findViewById(R.id.textView1);
-        tv.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent(Homepage.this, viewSite.class);
-                intent.putExtra("URL", tv.getText());
-                startActivity(intent);
-            }
-        });
+
+        LinearLayout sv = (LinearLayout) findViewById(R.id.mainScrollView);
+        makeChildrenTextViewsClickable(sv);
     }
+
+    public void makeChildrenTextViewsClickable(View v)
+    {
+        if(v instanceof ViewGroup)
+        {
+            for (int i = 0; i < ((ViewGroup)v).getChildCount(); i++)
+            {
+                makeChildrenTextViewsClickable(((ViewGroup) v).getChildAt(i));
+            }
+        }
+        if (v instanceof  TextView)
+        {
+            final TextView tv = (TextView) v;
+            tv.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View view) {
+                    Intent intent = new Intent(Homepage.this, viewSite.class);
+                    intent.putExtra("URL", tv.getText());
+                    startActivity(intent);
+                }
+            });
+        }
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
