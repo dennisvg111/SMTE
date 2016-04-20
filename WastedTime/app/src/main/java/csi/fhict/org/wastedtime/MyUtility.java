@@ -30,6 +30,10 @@ public abstract class MyUtility {
             if (favoriteArray.length > 0)
             {
                 List<String> list = new ArrayList<String>(Arrays.asList(favoriteArray));
+                if (!list.contains(favoriteItem))
+                {
+                    return false;
+                }
                 list.remove(favoriteItem);
                 boolean first = true;
                 favoriteList = "";
