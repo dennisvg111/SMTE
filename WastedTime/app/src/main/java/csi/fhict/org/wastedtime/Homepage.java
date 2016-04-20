@@ -1,10 +1,14 @@
 package csi.fhict.org.wastedtime;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -19,15 +23,23 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Random;
+
+import static java.lang.Character.getType;
+
 public class Homepage extends AppCompatActivity implements SensorEventListener {
 
     private SensorManager sensorManager;
     private float oldAX = 9001, oldAY = 9001, oldAZ = 9001;
+    private ArrayList<TextView> URLlist;
+    private long lastShuffle = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
+        URLlist = new ArrayList<TextView>();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -35,8 +47,20 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = clipboard.getPrimaryClip();
+                if (clip != null) {
+
+                    // Gets the first item from the clipboard data
+                    ClipData.Item item = clip.getItemAt(0);
+
+                    // Tries to get the item's contents as a URI
+                    String pasteUri = "" + item.getText();
+                    if (pasteUri != null)
+                    {
+                        Log.d("values", pasteUri);
+                    }
+                }
             }
         });
 
@@ -59,6 +83,7 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
         if (v instanceof  TextView)
         {
             final TextView tv = (TextView) v;
+            URLlist.add(tv);
             tv.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view) {
                     Intent intent = new Intent(Homepage.this, viewSite.class);
@@ -118,7 +143,16 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
             oldAY = ay;
             oldAZ = az;
             if (maxD > 2.5) {
-                Log.d("values", "Max: " + maxD);
+                long time = System.currentTimeMillis();
+                if (time - lastShuffle > 3000)
+                {
+                    Log.d("values", "Max: " + maxD);
+                    int URLint = new Random().nextInt(URLlist.size());
+                    Intent intent = new Intent(Homepage.this, viewSite.class);
+                    intent.putExtra("URL", URLlist.get(URLint).getText());
+                    startActivity(intent);
+                    lastShuffle = time;
+                }
             }
         }
     }
