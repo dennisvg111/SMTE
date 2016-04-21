@@ -38,17 +38,19 @@ import static java.lang.Character.getType;
 
 public class Homepage extends AppCompatActivity implements SensorEventListener {
 
-    private SensorManager sensorManager;
+    public static SensorManager sensorManager;
     private float oldAX = 9001, oldAY = 9001, oldAZ = 9001;
     private ArrayList<TextView> URLlist;
     private long lastShuffle = 0;
     private static Activity self;
+    public static SensorEventListener listener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
         self = this;
+        listener = this;
         if (new Boolean(MyUtility.getStringFromPreferences(Homepage.getSelf(), new Boolean(false).toString(), "rotationLock")))
         {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);

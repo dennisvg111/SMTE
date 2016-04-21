@@ -68,6 +68,7 @@ public class viewSite extends AppCompatActivity {
         if (id == R.id.action_add_current_url) {
             WebView wv = (WebView) findViewById(R.id.webView);
             MyUtility.addFavoriteItem(Homepage.getSelf(), wv.getUrl());
+            Homepage.sensorManager.unregisterListener(Homepage.listener);
             Homepage.getSelf().finish();
             Intent intent = new Intent(viewSite.this, Homepage.class);
             startActivity(intent);
