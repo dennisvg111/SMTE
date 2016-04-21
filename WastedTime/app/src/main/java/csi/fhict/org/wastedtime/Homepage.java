@@ -126,6 +126,8 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
             tv.setLayoutParams
                     (new LinearLayout.LayoutParams
                             (ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            tv.setTextSize(20);
             if (URLlist == null)
             {
                 URLlist = new ArrayList<TextView>();
