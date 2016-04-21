@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -92,6 +93,7 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
         }
 
         sensorManager=(SensorManager) getSystemService(SENSOR_SERVICE);
+        sensorManager.unregisterListener(this);
         sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
@@ -123,6 +125,7 @@ public class Homepage extends AppCompatActivity implements SensorEventListener {
         if (v instanceof  TextView) {
             final TextView tv = (TextView) v;
             tv.setPadding(0,5,0,5);
+            tv.setTextColor(Color.BLACK);
             tv.setLayoutParams
                     (new LinearLayout.LayoutParams
                             (ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
